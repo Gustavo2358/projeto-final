@@ -18,9 +18,9 @@ public class RickAndMortyService {
      * @return String apelido
      */
     public String getApelido(String nome){
-        Integer count  = getQtdPersonagens();
+        Integer count  = getQtdPersonagensGraphql();
         Integer numPersonagem = nameToNumber(nome, count);
-        return getNomePersonagem(numPersonagem);
+        return getNomePersonagemGraphQl(numPersonagem);
     }
 
     /**
@@ -40,6 +40,29 @@ public class RickAndMortyService {
     }
 
     /**
+     * Busca nome de um personagem utilizando uma Query Graphql, evitando o overfetching de informações.
+     * @param id
+     * @return Nome de um personagem.
+     */
+    private String getNomePersonagemGraphQl(Integer id){
+
+        WebClient webClient = WebClient.create();
+        String uri = "https://rickandmortyapi.com/graphql";
+        String query = String.format("{ \"query\": \"{ character(id: %d) { name } }\" }", id) ;
+        WebClient.ResponseSpec retrieve = webClient
+                .post()
+                .uri(uri)
+                .header("content-type","application/json")
+                .bodyValue(query)
+                .retrieve();
+        String responseBody = retrieve.bodyToMono(String.class).block();
+
+        JSONObject obj = new JSONObject(responseBody);
+        obj = obj.getJSONObject("data").getJSONObject("character");
+        return obj.getString("name");
+    }
+
+    /**
      * Busca a quantidade de personagens disponíveis na API até o momento.
      * @return Quantidade de personagens na API.
      */
@@ -54,6 +77,30 @@ public class RickAndMortyService {
         JSONObject info =  obj.getJSONObject("info");
         Integer count = info.getInt("count");
         return count;
+    }
+
+    /**
+     * Busca a quantidade de personagens disponíveis na API até o momento.
+     * @return Quantidade de personagens na API.
+     */
+    private Integer getQtdPersonagensGraphql(){
+        WebClient webClient = WebClient.create();
+        String uri = "https://rickandmortyapi.com/graphql";
+        String query = "{ \"query\": \"{ characters{ info{ count } } }\" }";
+
+        WebClient.ResponseSpec retrieve = webClient
+                .post()
+                .uri(uri)
+                .header("content-type","application/json")
+                .bodyValue(query)
+                .retrieve();
+        String responseBody = retrieve.bodyToMono(String.class).block();
+
+        return new JSONObject(responseBody)
+                .getJSONObject("data")
+                .getJSONObject("characters")
+                .getJSONObject("info")
+                .getInt("count");
     }
 
     /**
