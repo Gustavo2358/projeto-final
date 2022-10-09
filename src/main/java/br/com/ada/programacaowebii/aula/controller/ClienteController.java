@@ -34,7 +34,7 @@ public class ClienteController {
     private ClienteService clienteService;
     private RickAndMortyService rickAndMortyService;
 
-    @Operation(summary = "Criar cliente")
+    @Operation(summary = "Criar cliente", tags = "Cliente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created"),
             @ApiResponse(responseCode = "400", description = "Bad Request"),

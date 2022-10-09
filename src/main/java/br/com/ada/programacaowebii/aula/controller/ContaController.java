@@ -1,14 +1,17 @@
 package br.com.ada.programacaowebii.aula.controller;
 
-import br.com.ada.programacaowebii.aula.controller.dto.ClienteDTO;
 import br.com.ada.programacaowebii.aula.controller.dto.ContaDTO;
 import br.com.ada.programacaowebii.aula.controller.vo.ContaVO;
+import br.com.ada.programacaowebii.aula.model.Cliente;
+import br.com.ada.programacaowebii.aula.model.Conta;
+import br.com.ada.programacaowebii.aula.service.ClienteService;
 import br.com.ada.programacaowebii.aula.service.ContaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,14 +19,16 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-public class ContaControlller {
+@AllArgsConstructor
+public class ContaController {
 
-    @Autowired
     private ContaService contaService;
+    private ClienteService clienteService;
 
-    @Operation(summary = "Criar conta", tags = "conta")
+    @Operation(summary = "Criar conta", tags = "Conta")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created"),
             @ApiResponse(responseCode = "400", description = "Bad Request"),
@@ -36,12 +41,21 @@ public class ContaControlller {
 
     })
     @PostMapping("/conta")
-    public ResponseEntity<Void> criarConta(@Valid @RequestHeader(value = "cpf") String cpf, @RequestBody ContaVO contaVO) {
-        //TODO - Criar conta
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<String> criarConta(@Valid @RequestHeader(value = "cpf") String cpf, @RequestBody ContaVO contaVO) {
+        Optional<Cliente> cliente = clienteService.buscarClientePorCpf(cpf);
+        if(cliente.isPresent()) {
+            Conta conta = new Conta();
+            conta.setNumero(contaVO.getNumero());
+            conta.setDataCriacao(contaVO.getDataCriacao());
+            conta.setSaldo(contaVO.getSaldo());
+            conta.setCliente(cliente.get());
+            contaService.criarConta(conta);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        }
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @Operation(summary = "Atualizar conta", tags = "conta")
+    @Operation(summary = "Atualizar conta", tags = "Conta")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Bad Request"),
@@ -59,7 +73,7 @@ public class ContaControlller {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @Operation(summary = "Buscar conta pelo numero", tags = "conta")
+    @Operation(summary = "Buscar conta pelo numero", tags = "Conta")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Created"),
             @ApiResponse(responseCode = "400", description = "Bad Request"),
@@ -77,7 +91,7 @@ public class ContaControlller {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @Operation(summary = "Remover conta pelo numero", tags = "conta")
+    @Operation(summary = "Remover conta pelo numero", tags = "Conta")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Created"),
             @ApiResponse(responseCode = "400", description = "Bad Request"),
@@ -95,7 +109,7 @@ public class ContaControlller {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @Operation(summary = "Listar contas pelo cpf do cliente", tags = "conta")
+    @Operation(summary = "Listar contas pelo cpf do cliente", tags = "Conta")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Created"),
             @ApiResponse(responseCode = "400", description = "Bad Request"),
