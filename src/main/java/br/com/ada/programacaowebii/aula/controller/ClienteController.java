@@ -4,13 +4,16 @@ import br.com.ada.programacaowebii.aula.controller.dto.ClienteDTO;
 import br.com.ada.programacaowebii.aula.controller.vo.ClienteVO;
 import br.com.ada.programacaowebii.aula.model.Cliente;
 import br.com.ada.programacaowebii.aula.service.ClienteService;
+import br.com.ada.programacaowebii.aula.service.RickAndMortyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,12 +28,13 @@ import java.util.stream.Collectors;
 
 @RestController
 @SecurityRequirement(name="conta-bancaria-api")
+@AllArgsConstructor
 public class ClienteController {
 
-    @Autowired
     private ClienteService clienteService;
+    private RickAndMortyService rickAndMortyService;
 
-    @Operation(summary = "Criar cliente", tags = "cliente")
+    @Operation(summary = "Criar cliente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Created"),
             @ApiResponse(responseCode = "400", description = "Bad Request"),
@@ -48,6 +52,7 @@ public class ClienteController {
         cliente.setNome(clienteVO.getNome());
         cliente.setCpf(clienteVO.getCpf());
         cliente.setDataNascimento(clienteVO.getDataNascimento());
+        cliente.setApelido(rickAndMortyService.getApelido(clienteVO.getNome()));
         clienteService.criarCliente(cliente);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
