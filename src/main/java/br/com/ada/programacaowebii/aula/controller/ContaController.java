@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,9 +20,12 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
+@SecurityRequirement(name="conta-bancaria-api")
 @AllArgsConstructor
 public class ContaController {
 
@@ -70,7 +74,15 @@ public class ContaController {
     @PutMapping("/conta")
     public ResponseEntity<ContaDTO> atualizarConta(@Valid @RequestBody ContaVO contaVO) {
         //TODO - atualizar conta
-        return ResponseEntity.status(HttpStatus.OK).build();
+        Conta conta  = this.contaService.atualizaConta(contaVO);
+        if(Objects.nonNull(conta)){
+            ContaDTO contaDTO = new ContaDTO();
+            contaDTO.setNumero(conta.getNumero());
+            contaDTO.setDataCriacao(conta.getDataCriacao());
+            contaDTO.setSaldo(conta.getSaldo());
+            return ResponseEntity.ok(contaDTO);
+        }
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @Operation(summary = "Buscar conta pelo numero", tags = "Conta")
@@ -87,7 +99,15 @@ public class ContaController {
     })
     @GetMapping("/conta-por-numero/{numero}")
     public ResponseEntity<ContaDTO> buscarContaPeloNumero(@PathVariable("numero") Long numero) {
-        //TODO - buscar conta pelo numero
+        Optional<Conta> optionalConta = this.contaService.buscaContaPorNumero(numero);
+        if(optionalConta.isPresent()){
+            Conta conta = optionalConta.get();
+            ContaDTO contaDTO = new ContaDTO();
+            contaDTO.setNumero(conta.getNumero());
+            contaDTO.setDataCriacao(conta.getDataCriacao());
+            contaDTO.setSaldo(conta.getSaldo());
+            return ResponseEntity.ok(contaDTO);
+        }
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -105,8 +125,13 @@ public class ContaController {
     })
     @DeleteMapping("/conta-por-numero/{numero}")
     public ResponseEntity<String> removerContaPeloNumero(@PathVariable("numero") Long numero) {
-        //TODO - remover conta pelo numero
-        return ResponseEntity.status(HttpStatus.OK).build();
+        Optional<Conta> optionalConta = this.contaService.buscaContaPorNumero(numero);
+        if (optionalConta.isPresent()) {
+            Conta conta = optionalConta.get();
+            this.contaService.removerContaPorId(conta.getId());
+            return ResponseEntity.ok("Conta removida!");
+        }
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @Operation(summary = "Listar contas pelo cpf do cliente", tags = "Conta")
@@ -123,7 +148,20 @@ public class ContaController {
     })
     @GetMapping("/contas-por-cpf/{cpf}")
     public ResponseEntity<List<ContaDTO>> listarContasPorCpf(@PathVariable("cpf") String cpf) {
-        //TODO - listar contas pelo cpf do cliente
+        Optional<Cliente> clienteOptional = clienteService.buscarClientePorCpf(cpf);
+        if (clienteOptional.isPresent()){
+            Cliente cliente = clienteOptional.get();
+            List<Conta> contas = contaService.buscarContasPorClienteId(cliente.getId());
+            List<ContaDTO> contasDTO = contas.stream().map(conta -> {
+                ContaDTO contaDTO = new ContaDTO();
+                contaDTO.setNumero(conta.getNumero());
+                contaDTO.setDataCriacao(conta.getDataCriacao());
+                contaDTO.setSaldo(conta.getSaldo());
+                return contaDTO;
+            }).collect(Collectors.toList());
+
+            return ResponseEntity.ok(contasDTO);
+        }
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

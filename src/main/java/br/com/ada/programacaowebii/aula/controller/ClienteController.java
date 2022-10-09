@@ -12,8 +12,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,6 +55,18 @@ public class ClienteController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Operation(summary = "Buscar cliente por Id", tags = "Cliente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created"),
+            @ApiResponse(responseCode = "400", description = "Bad Request"),
+            @ApiResponse(responseCode = "422", description = "Bad Request",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ClienteDTO.class))
+                    }
+            )
+
+    })
     @GetMapping("/cliente/{id}")
     public ResponseEntity<ClienteDTO> buscarClientePorId(@PathVariable("id") Long id) {
         Optional<Cliente> optionalCliente = this.clienteService.buscarClientePorId(id);
@@ -71,6 +81,19 @@ public class ClienteController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+
+    @Operation(summary = "Atualiza cliente por Id", tags = "Cliente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created"),
+            @ApiResponse(responseCode = "400", description = "Bad Request"),
+            @ApiResponse(responseCode = "422", description = "Bad Request",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ClienteDTO.class))
+                    }
+            )
+
+    })
     @PutMapping("/cliente/{id}")
     public ResponseEntity<ClienteDTO> atualizarCliente(@PathVariable("id") Long id, @RequestBody ClienteVO clienteVO) {
         Cliente cliente = this.clienteService.atualizarClientePorId(id, clienteVO);
@@ -84,6 +107,19 @@ public class ClienteController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+
+    @Operation(summary = "Remove cliente por Id", tags = "Cliente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created"),
+            @ApiResponse(responseCode = "400", description = "Bad Request"),
+            @ApiResponse(responseCode = "422", description = "Bad Request",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ClienteDTO.class))
+                    }
+            )
+
+    })
     @DeleteMapping("/cliente/{id}")
     public ResponseEntity<String> removerClientePorId(@PathVariable("id") Long id) {
         Optional<Cliente> optionalCliente = this.clienteService.buscarClientePorId(id);
@@ -95,6 +131,19 @@ public class ClienteController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+
+    @Operation(summary = "Lista clientes", tags = "Cliente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created"),
+            @ApiResponse(responseCode = "400", description = "Bad Request"),
+            @ApiResponse(responseCode = "422", description = "Bad Request",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ClienteDTO.class))
+                    }
+            )
+
+    })
     @GetMapping("/clientes")
     public ResponseEntity<List<ClienteDTO>> listarTodosClientes() {
         List<Cliente> clientes = this.clienteService.listarTodosClientes();
@@ -105,6 +154,19 @@ public class ClienteController {
         return ResponseEntity.ok(clienteDTOS);
     }
 
+
+    @Operation(summary = "Lista Clientes por nome", tags = "Cliente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created"),
+            @ApiResponse(responseCode = "400", description = "Bad Request"),
+            @ApiResponse(responseCode = "422", description = "Bad Request",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ClienteDTO.class))
+                    }
+            )
+
+    })
     @GetMapping("/clientes-por-nome/{nome}")
     public ResponseEntity<List<ClienteDTO>> listarClientesPorNome(@PathVariable("nome") String nome) {
         List<Cliente> clientes = this.clienteService.listarClientesPorNome(nome);
@@ -115,6 +177,19 @@ public class ClienteController {
         return ResponseEntity.ok(clienteDTOS);
     }
 
+
+    @Operation(summary = "Lista Clientes por nome ou data nascimento", tags = "Cliente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created"),
+            @ApiResponse(responseCode = "400", description = "Bad Request"),
+            @ApiResponse(responseCode = "422", description = "Bad Request",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ClienteDTO.class))
+                    }
+            )
+
+    })
     @GetMapping("/clientes-por-nome/{nome}/ou-data-nascimento/{data-nascimento}")
     public ResponseEntity<List<ClienteDTO>> listarClientesPorNome(@PathVariable("nome") String nome,
                                                                   @PathVariable("data-nascimento") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dataNascimento) {
@@ -126,6 +201,19 @@ public class ClienteController {
         return ResponseEntity.ok(clienteDTOS);
     }
 
+
+    @Operation(summary = "Lista Clientes por periodo", tags = "Cliente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created"),
+            @ApiResponse(responseCode = "400", description = "Bad Request"),
+            @ApiResponse(responseCode = "422", description = "Bad Request",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ClienteDTO.class))
+                    }
+            )
+
+    })
     @GetMapping("/clientes-nascidos-em/{data-inicial}/ate/{data-final}")
     public ResponseEntity<List<ClienteDTO>> listarClientesPorPeriodo(
             @PathVariable("data-inicial") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicial,
@@ -138,6 +226,19 @@ public class ClienteController {
         return ResponseEntity.ok(clienteDTOS);
     }
 
+
+    @Operation(summary = "Busca cliente por Cpf", tags = "Cliente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created"),
+            @ApiResponse(responseCode = "400", description = "Bad Request"),
+            @ApiResponse(responseCode = "422", description = "Bad Request",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ClienteDTO.class))
+                    }
+            )
+
+    })
     @GetMapping("/cliente-por-cpf/{cpf}")
     public ResponseEntity<ClienteDTO> buscarClientePorCpf(@PathVariable("cpf") String cpf) {
         Optional<Cliente> optionalCliente = this.clienteService.buscarClientePorCpf(cpf);
@@ -153,6 +254,19 @@ public class ClienteController {
     }
 
 
+
+    @Operation(summary = "Atualiza Cliente por Cpf", tags = "Cliente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created"),
+            @ApiResponse(responseCode = "400", description = "Bad Request"),
+            @ApiResponse(responseCode = "422", description = "Bad Request",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ClienteDTO.class))
+                    }
+            )
+
+    })
     @PutMapping("/cliente-por-cpf")
     public ResponseEntity<ClienteDTO> atualizarClientePorCpf(@RequestBody ClienteVO clienteVO) {
         Cliente cliente = this.clienteService.atualizarCliente(clienteVO);
@@ -166,6 +280,19 @@ public class ClienteController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+
+    @Operation(summary = "Remove cliente por cpf", tags = "Cliente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created"),
+            @ApiResponse(responseCode = "400", description = "Bad Request"),
+            @ApiResponse(responseCode = "422", description = "Bad Request",
+                    content = {
+                            @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ClienteDTO.class))
+                    }
+            )
+
+    })
     @DeleteMapping("/cliente-por-cpf/{cpf}")
     public ResponseEntity<String> removerClientePorId(@PathVariable("cpf") String cpf) {
         Optional<Cliente> optionalCliente = this.clienteService.buscarClientePorCpf(cpf);
